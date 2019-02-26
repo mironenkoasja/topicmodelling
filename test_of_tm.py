@@ -81,10 +81,6 @@ def only_one_column(info_list, i):
 
 
 
-# Add data        
-type_1 = read_csv_list('literature_2017.csv')
-type_1[15]
-
 # Merge all sets
 l_paths = ['sociology_2017.csv', 'cardio_2017.csv', 'literature_2017.csv']
 all_sets = []
@@ -92,11 +88,9 @@ for path in l_paths:
     dataset = read_csv_list(path) 
     all_sets += dataset[1:len(dataset)]
 len(all_sets)
-all_sets[14]
 
 # Only abstracts
-abstr_all_sets = only_one_column(type_1, 3)
-print(abstr_all_sets[2])
+abstr_all_sets = only_one_column(all_sets, 3)
 
 
 # Identification of most frequent words to add to stop-words
@@ -132,11 +126,11 @@ bigram_mod = gensim.models.phrases.Phraser(bigram)
 trigram_mod = gensim.models.phrases.Phraser(trigram)
 
 # See trigram example
-print(trigram_mod[bigram_mod[data_words[0]]])
+# print(trigram_mod[bigram_mod[data_words[0]]])
 
 # remove stop_words, make bigrams, trigrams
 stop_words = stopwords.words('english')
-stop_words.extend(['article', 'essay', 'literature'])
+stop_words.extend([])
 def remove_stopwords(texts):
     return [[word for word in simple_preprocess(str(doc)) if word not in stop_words] for doc in texts]
 
@@ -168,7 +162,7 @@ nlp = spacy.load('en', disable=['parser', 'ner'])
 # Do lemmatization keeping only noun, adj, vb, adv
 data_lemmatized = lemmatization(data_words_bigrams, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV'])
 
-print(data_lemmatized[:1])
+#print(data_lemmatized[:1])
 
     
 # Create Dictionary
@@ -181,12 +175,12 @@ texts = data_lemmatized
 corpus = [id2word.doc2bow(text) for text in texts]
 
 # View
-print(corpus[13:14])
+# print(corpus[13:14])
 
 # Build LDA model
 lda_model_g = gensim.models.ldamodel.LdaModel(corpus=corpus,
                                            id2word=id2word,
-                                           num_topics=18, 
+                                           num_topics=6, 
                                            random_state=100,
                                            update_every=1,
                                            chunksize=200,
@@ -197,72 +191,72 @@ lda_model_g = gensim.models.ldamodel.LdaModel(corpus=corpus,
 pprint(lda_model_g.print_topics())
 doc_lda = lda_model_g[corpus]
 
-len(doc_lda)
-
-print(doc_lda[0])
-
-#TODOTODOTODOTODO  3 Код для выгрузки баз
-
-
-# Compute Perplexity
-print('\nPerplexity: ', lda_model_g.log_perplexity(corpus))  # a measure of how good the model is. lower the better.
-
-# Compute Coherence Score
-coherence_model_lda = CoherenceModel(model=lda_model_gl, texts=data_lemmatized, dictionary=id2word, coherence='c_v')
-coherence_lda = coherence_model_lda.get_coherence()
-print('\nCoherence Score: ', coherence_lda)
-
-
-
-def compute_coherence_values(dictionary, corpus, texts, limit, start=2, step=3):
-    """
-    Compute c_v coherence for various number of topics
-
-    Parameters:
-    ----------
-    dictionary : Gensim dictionary
-    corpus : Gensim corpus
-    texts : List of input texts
-    limit : Max num of topics
-
-    Returns:
-    -------
-    model_list : List of LDA topic models
-    coherence_values : Coherence values corresponding to the LDA model with respective number of topics
-    """
-    coherence_values = []
-    model_list = []
-    for num_topics in range(start, limit, step):
-        model = gensim.models.ldamodel.LdaModel(corpus=corpus, num_topics=num_topics, id2word=id2word)
-        model_list.append(model)
-        coherencemodel = CoherenceModel(model=model, texts=texts, dictionary=dictionary, coherence='c_v')
-        coherence_values.append(coherencemodel.get_coherence())
-
-    return model_list, coherence_values
-
-
-model_list, coherence_values = compute_coherence_values(dictionary=id2word, 
-                                                        corpus=corpus, 
-                                                        texts=texts, 
-                                                        start=2, limit=50, step=4)
-
-# Show graph
-limit=50; start=2; step=4;
-x = range(start, limit, step)
-plt.plot(x, coherence_values)
-plt.xticks(np.arange(min(x), max(x)+1, 4))
-plt.xlabel("Num Topics")
-plt.ylabel("Coherence score")
-plt.legend(("coherence_values"), loc='best')
-plt.show()
-
-outfile = open('sets.csv', 'w', newline='')
-writer = csv.writer(outfile)
-for i in all_sets:    
-    writer.writerow(i)
-outfile.close()
-
-
+#len(doc_lda)
+#
+#print(doc_lda[0])
+#
+##TODOTODOTODOTODO  3 Код для выгрузки баз
+#
+#
+## Compute Perplexity
+#print('\nPerplexity: ', lda_model_g.log_perplexity(corpus))  # a measure of how good the model is. lower the better.
+#
+## Compute Coherence Score
+#coherence_model_lda = CoherenceModel(model=lda_model_gl, texts=data_lemmatized, dictionary=id2word, coherence='c_v')
+#coherence_lda = coherence_model_lda.get_coherence()
+#print('\nCoherence Score: ', coherence_lda)
+#
+#
+#
+#def compute_coherence_values(dictionary, corpus, texts, limit, start=2, step=3):
+#    """
+#    Compute c_v coherence for various number of topics
+#
+#    Parameters:
+#    ----------
+#    dictionary : Gensim dictionary
+#    corpus : Gensim corpus
+#    texts : List of input texts
+#    limit : Max num of topics
+#
+#    Returns:
+#    -------
+#    model_list : List of LDA topic models
+#    coherence_values : Coherence values corresponding to the LDA model with respective number of topics
+#    """
+#    coherence_values = []
+#    model_list = []
+#    for num_topics in range(start, limit, step):
+#        model = gensim.models.ldamodel.LdaModel(corpus=corpus, num_topics=num_topics, id2word=id2word)
+#        model_list.append(model)
+#        coherencemodel = CoherenceModel(model=model, texts=texts, dictionary=dictionary, coherence='c_v')
+#        coherence_values.append(coherencemodel.get_coherence())
+#
+#    return model_list, coherence_values
+#
+#
+#model_list, coherence_values = compute_coherence_values(dictionary=id2word, 
+#                                                        corpus=corpus, 
+#                                                        texts=texts, 
+#                                                        start=2, limit=50, step=4)
+#
+## Show graph
+#limit=50; start=2; step=4;
+#x = range(start, limit, step)
+#plt.plot(x, coherence_values)
+#plt.xticks(np.arange(min(x), max(x)+1, 4))
+#plt.xlabel("Num Topics")
+#plt.ylabel("Coherence score")
+#plt.legend(("coherence_values"), loc='best')
+#plt.show()
+#
+#outfile = open('sets.csv', 'w', newline='')
+#writer = csv.writer(outfile)
+#for i in all_sets:    
+#    writer.writerow(i)
+#outfile.close()
+#
+#lda_model_g[corpus][1]
 #Finding the dominant topic in each document
 
 def format_topics_sentences(ldamodel, corpus, texts):
@@ -296,7 +290,13 @@ df_dominant_topic.columns = ['Document_No', 'Dominant_Topic', 'Topic_Perc_Contri
 
 # Show
 df_dominant_topic.head(10)
-df_dominant_topic.to_csv('out.csv')
+df_dominant_topic.to_csv('out2.csv')
+
+
+lda_model_g[corpus][0]
+
+mixture = [dict(lda_model_g[x]) for x in corpus]
+pd.DataFrame(mixture).to_csv("topic_mixture.csv")
 
 
 # Visualize the topics
