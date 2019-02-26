@@ -82,7 +82,7 @@ def only_one_column(info_list, i):
 
 
 # Merge all sets
-l_paths = ['sociology_2017.csv', 'cardio_2017.csv', 'literature_2017.csv']
+l_paths = ['sociology_2017.csv', 'literature_2017.csv']
 all_sets = []
 for path in l_paths:
     dataset = read_csv_list(path) 
